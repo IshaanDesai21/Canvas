@@ -4,6 +4,7 @@
   import { background, GRADIENTS } from '$stores/background.svelte';
   import { layout } from '$stores/layout.svelte';
   import { dock } from '$stores/dock.svelte';
+  import { onboarding } from '$stores/onboarding.svelte';
   import type { SearchProviderId } from '$lib/types';
   import { PROVIDER_LIST } from '$utils/search';
   import { PRESETS } from '$utils/presets';
@@ -174,7 +175,11 @@
           <input type="file" accept="application/json" onchange={(e) => importLayout((e.target as HTMLInputElement).files)} />
         </label>
         <button class="control" onclick={() => layout.reset()}>Reset widgets</button>
-        <button class="control danger" onclick={() => { settings.reset(); dock.reset(); }}>Reset all</button>
+        <button
+          class="control danger"
+          title="Restore everything to defaults and re-run the welcome setup next time you open Canvas"
+          onclick={() => { settings.reset(); dock.reset(); background.reset(); layout.reset(); onboarding.restartNextVisit(); }}
+        >Reset to defaults</button>
       </div>
     </section>
   </aside>

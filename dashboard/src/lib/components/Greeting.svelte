@@ -28,4 +28,9 @@
   h1 { font-size: clamp(1.9rem, 4vw, 3rem); font-weight: 600; letter-spacing: -0.02em; margin: 0; text-shadow: 0 1px 24px rgba(0, 0, 0, 0.18); }
   .name { background: linear-gradient(90deg, var(--accent), color-mix(in srgb, var(--accent) 55%, #ff2d55)); -webkit-background-clip: text; background-clip: text; color: transparent; }
   .sub { margin: 0.4rem 0 0; font-size: clamp(0.95rem, 1.4vw, 1.15rem); font-weight: 500; }
+
+  @media (max-width: 680px) {
+    h1 { font-size: clamp(1.5rem, 7vw, 2rem); }
+    .sub { font-size: 0.9rem; }
+  }
 </style>

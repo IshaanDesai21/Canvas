@@ -82,6 +82,17 @@
     hideTimer = window.setTimeout(() => { revealed = false; mouseX = null; hovered = null; }, 240);
   }
 
+  // Reveal when the cursor nears the bottom; hide once it moves well away.
+  // The gap between the two thresholds is hysteresis so it doesn't flicker.
+  const REVEAL_WITHIN = 130;
+  const HIDE_BEYOND = 260;
+  function onWindowMove(e: PointerEvent) {
+    if (!settings.current.dockEnabled || editing) return;
+    const fromBottom = window.innerHeight - e.clientY;
+    if (fromBottom <= REVEAL_WITHIN) reveal();
+    else if (fromBottom > HIDE_BEYOND && revealed) scheduleHide();
+  }
+
   async function addApp() {
     if (!nLabel.trim() && !nUrl.trim()) return;
     let imageId: string | undefined;
@@ -95,6 +106,8 @@
     dock.remove(app.id);
   }
 </script>
+
+<svelte:window onpointermove={onWindowMove} />
 
 {#if settings.current.dockEnabled}
   <div class="dock-region">

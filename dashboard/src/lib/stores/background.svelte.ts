@@ -127,6 +127,14 @@ class BackgroundStore {
     this.config.kind = 'gradient';
   }
 
+  /** Restore the default wallpaper (used by "Reset to defaults"). */
+  reset() {
+    if (this.config.imageId) void blobStore.delete(this.config.imageId);
+    if (this.imageUrl) URL.revokeObjectURL(this.imageUrl);
+    this.imageUrl = null;
+    this.config = { ...DEFAULT_BG };
+  }
+
   get activeGradient(): GradientPreset {
     return GRADIENTS.find((g) => g.id === this.config.gradientId) ?? GRADIENTS[0];
   }

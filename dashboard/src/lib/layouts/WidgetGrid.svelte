@@ -3,6 +3,7 @@
   import { layout } from '$stores/layout.svelte';
   import { ui } from '$stores/ui.svelte';
   import { settings } from '$stores/settings.svelte';
+  import { viewport } from '$stores/viewport.svelte';
   import { getWidgetDefinition } from '$widgets/registry';
   import {
     computeMetrics, cellToPx, spanToPx, pxToCell, collides, clampPosition, type GridMetrics
@@ -14,6 +15,11 @@
   let containerWidth = $state(1200);
 
   let metrics = $derived<GridMetrics>(computeMetrics(containerWidth, settings.current.gridGap));
+
+  // On phones the cell grid can't fit; stack widgets in reading order instead.
+  let stacked = $derived(
+    [...layout.widgets].sort((a, b) => a.y - b.y || a.x - b.x)
+  );
 
   // Total rows occupied → grid height (so the area scrolls if needed).
   let rows = $derived(layout.widgets.reduce((m, w) => Math.max(m, w.y + w.h), 6));
@@ -86,6 +92,22 @@
   }
 </script>
 
+{#if viewport.isMobile}
+  <!-- Mobile: a single readable column, no drag/resize. -->
+  <div class="mobile-stack">
+    {#each stacked as w (w.id)}
+      <div class="m-slot" style="height:{Math.max(w.h, 1) * 84}px">
+        <WidgetShell
+          instance={w}
+          editMode={false}
+          onDelete={() => layout.remove(w.id)}
+          onDragPointerDown={() => {}}
+          onResizePointerDown={() => {}}
+        />
+      </div>
+    {/each}
+  </div>
+{:else}
 <div class="grid-area" bind:this={container} class:editing={ui.editMode}>
   <div class="grid" style="height:{gridHeight}px">
     {#if ui.editMode}
@@ -118,9 +140,18 @@
     {/each}
   </div>
 </div>
+{/if}
 
 <style>
   .grid-area { width: 100%; }
+  .mobile-stack {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    width: 100%;
+    padding-bottom: 24px;
+  }
+  .m-slot { width: 100%; }
   .grid { position: relative; margin: 0 auto; }
   .slot {
     position: absolute; top: 0; left: 0; will-change: transform;

@@ -1,6 +1,7 @@
 <script lang="ts">
   import { ui } from '$stores/ui.svelte';
   import { settings } from '$stores/settings.svelte';
+  import { viewport } from '$stores/viewport.svelte';
   import Background from '$components/Background.svelte';
   import Greeting from '$components/Greeting.svelte';
   import SearchBar from '$components/SearchBar.svelte';
@@ -8,6 +9,7 @@
   import CommandPalette from '$components/CommandPalette.svelte';
   import CustomizationPanel from '$components/CustomizationPanel.svelte';
   import WidgetGallery from '$components/WidgetGallery.svelte';
+  import Onboarding from '$components/Onboarding.svelte';
   import WidgetGrid from '$layouts/WidgetGrid.svelte';
   import Icon from '$components/Icon.svelte';
 
@@ -77,15 +79,18 @@
   <button class="tool glass" aria-label="Settings" onclick={() => (ui.settingsOpen = true)}>
     <Icon name="sliders" size={20} />
   </button>
-  <button class="tool glass" class:active={ui.editMode} aria-pressed={ui.editMode}
-    aria-label={ui.editMode ? 'Done editing' : 'Edit dashboard'} onclick={() => ui.toggleEdit()}>
-    {#if ui.editMode}<span class="done">Done</span>{:else}<Icon name="pencil" size={18} />{/if}
-  </button>
+  {#if !viewport.isMobile}
+    <button class="tool glass" class:active={ui.editMode} aria-pressed={ui.editMode}
+      aria-label={ui.editMode ? 'Done editing' : 'Edit dashboard'} onclick={() => ui.toggleEdit()}>
+      {#if ui.editMode}<span class="done">Done</span>{:else}<Icon name="pencil" size={18} />{/if}
+    </button>
+  {/if}
 </div>
 
 <main class="stage scroll-area">
   <section class="hero">
     <Greeting />
+    {#if !viewport.isMobile}
     <div class="search-pos" style="transform: translate({settings.current.searchPosition.x}px, {settings.current.searchPosition.y}px)">
       {#if ui.editMode}
         <div class="search-tools">
@@ -107,6 +112,7 @@
         <div class="search-drag" onpointerdown={startSearchDrag} role="presentation" aria-hidden="true"></div>
       {/if}
     </div>
+    {/if}
   </section>
 
   <section class="widgets">
@@ -114,11 +120,14 @@
   </section>
 </main>
 
-<Dock />
+{#if !viewport.isMobile}
+  <Dock />
+{/if}
 
 <CommandPalette />
 <CustomizationPanel />
 <WidgetGallery />
+<Onboarding />
 
 <style>
   .stage { position: fixed; inset: 0; overflow-y: auto; overflow-x: hidden; padding: 0 max(24px, 4vw) 140px; display: flex; flex-direction: column; align-items: center; }
@@ -151,4 +160,11 @@
   .search-tools .search-handle:last-child { cursor: pointer; }
   .search-drag { position: absolute; inset: 0; z-index: 6; cursor: grab; border-radius: var(--radius-pill); }
   .search-drag:active { cursor: grabbing; }
+
+  /* Mobile: no dock/search, so reclaim the spacing and tighten the gutters. */
+  @media (max-width: 680px) {
+    .stage { padding: 0 16px 32px; }
+    .hero { padding: 6vh 0 3vh; gap: 18px; }
+    .widgets { max-width: 560px; }
+  }
 </style>

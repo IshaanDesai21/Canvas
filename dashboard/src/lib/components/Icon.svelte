@@ -20,6 +20,7 @@
     calendar: '<rect x="3.5" y="4.5" width="17" height="16" rx="3"/><path d="M3.5 9h17M8 3v4M16 3v4"/>',
     note: '<path d="M5 4h9l5 5v11H5z"/><path d="M14 4v5h5"/>',
     finder: '<rect x="3.5" y="3.5" width="17" height="17" rx="5"/><path d="M9 9v2M15 9v2M8.5 15c1.2 1.2 5.8 1.2 7 0"/>',
+    instagram: '<rect x="4" y="4" width="16" height="16" rx="5"/><circle cx="12" cy="12" r="3.6"/><circle cx="16.6" cy="7.4" r="1.05" fill="currentColor" stroke="none"/>',
     sun: '<circle cx="12" cy="12" r="4.2"/><path d="M12 2v2.5M12 19.5V22M2 12h2.5M19.5 12H22M4.9 4.9l1.8 1.8M17.3 17.3l1.8 1.8M19.1 4.9l-1.8 1.8M6.7 17.3l-1.8 1.8"/>',
     moon: '<path d="M20 14.5A8 8 0 1 1 9.5 4a6.5 6.5 0 0 0 10.5 10.5z"/>',
     cloud: '<path d="M7 18a4 4 0 0 1-.5-7.97A5.5 5.5 0 0 1 17 10.5a3.5 3.5 0 0 1-.5 7z"/>',

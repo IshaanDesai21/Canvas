@@ -1,10 +1,20 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64">
   <defs>
-    <linearGradient id="g" x1="0" y1="0" x2="1" y2="1">
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#23232e" />
+      <stop offset="1" stop-color="#0b0b10" />
+    </linearGradient>
+    <linearGradient id="accent" x1="0" y1="0" x2="1" y2="1">
       <stop offset="0" stop-color="#5ac8fa" />
-      <stop offset="1" stop-color="#007aff" />
+      <stop offset="1" stop-color="#0a84ff" />
     </linearGradient>
   </defs>
-  <rect x="6" y="6" width="52" height="52" rx="14" fill="url(#g)" />
-  <circle cx="32" cy="32" r="11" fill="#fff" fill-opacity="0.92" />
+  <!-- App-icon tile -->
+  <rect x="3" y="3" width="58" height="58" rx="15" fill="url(#bg)" />
+  <rect x="3.75" y="3.75" width="56.5" height="56.5" rx="14.25" fill="none" stroke="#ffffff" stroke-opacity="0.10" stroke-width="1.5" />
+  <!-- A canvas of widgets: a 2×2 of rounded glass tiles, one accented -->
+  <rect x="14" y="14" width="16" height="16" rx="5" fill="url(#accent)" />
+  <rect x="34" y="14" width="16" height="16" rx="5" fill="#ffffff" fill-opacity="0.22" />
+  <rect x="14" y="34" width="16" height="16" rx="5" fill="#ffffff" fill-opacity="0.22" />
+  <rect x="34" y="34" width="16" height="16" rx="5" fill="#ffffff" fill-opacity="0.40" />
 </svg>

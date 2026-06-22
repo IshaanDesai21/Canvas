@@ -1,0 +1,17 @@
+{
+  "manifest_version": 3,
+  "name": "MyNewTab",
+  "version": "1.0.0",
+  "description": "Opens your hosted dashboard on every new tab. A thin launcher — the dashboard is a normal web app.",
+  "permissions": ["tabs"],
+  "background": {
+    "service_worker": "background.js",
+    "type": "module"
+  },
+  "icons": {
+    "48": "icons/icon-48.png",
+    "128": "icons/icon-128.png",
+    "256": "icons/icon-256.png",
+    "512": "icons/icon-512.png"
+  }
+}

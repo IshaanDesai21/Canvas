@@ -197,13 +197,15 @@
     position: fixed; left: 0; right: 0; bottom: 0; z-index: 55; height: 140px;
     display: flex; justify-content: center; align-items: flex-end; pointer-events: none;
   }
-  .dock-trigger { position: absolute; left: 0; right: 0; bottom: 0; height: 14px; pointer-events: auto; }
+  /* Generous bottom hover zone that pops the dock up. */
+  .dock-trigger { position: absolute; left: 0; right: 0; bottom: 0; height: 52px; pointer-events: auto; }
 
   .dock-stack {
     pointer-events: auto; margin-bottom: 14px; display: flex; flex-direction: column; align-items: center; gap: 10px;
-    transition: transform var(--dur-base) var(--ease-out-quart), opacity var(--dur-base) var(--ease-smooth);
+    transition: transform var(--dur-base) var(--ease-spring), opacity var(--dur-base) var(--ease-smooth);
   }
-  .dock-stack:not(.shown) { transform: translateY(165%); opacity: 0; pointer-events: none; }
+  /* Fully tucked away (incl. shadow) until the bottom zone is hovered. */
+  .dock-stack:not(.shown) { transform: translateY(240%); opacity: 0; pointer-events: none; }
 
   .dock { display: flex; align-items: flex-end; gap: 8px; padding: 10px 12px; border-radius: 26px; contain: layout style; }
   .dock.editing { animation: jiggle 0.34s ease-in-out infinite; }

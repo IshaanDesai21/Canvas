@@ -15,8 +15,12 @@
   }
 
   let bg = $derived(background.config);
+  // Only emit a filter when something is actually adjusted — an identity filter
+  // still forces the browser to rasterize the layer, which softens the image.
   let filter = $derived(
-    `saturate(${bg.saturation}) brightness(${bg.brightness}) blur(${bg.blur}px)`
+    bg.blur === 0 && bg.saturation === 1 && bg.brightness === 1
+      ? 'none'
+      : `saturate(${bg.saturation}) brightness(${bg.brightness}) blur(${bg.blur}px)`
   );
   // The visible layer: image if present, else the chosen gradient.
   let image = $derived(bg.kind === 'image' && background.imageUrl ? background.imageUrl : null);

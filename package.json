@@ -1,28 +1,17 @@
 {
   "name": "mynewtab",
+  "version": "1.0.0",
   "private": true,
-  "version": "0.1.0",
   "type": "module",
-  "description": "A premium macOS-style Safari New Tab dashboard with Liquid Glass widgets.",
+  "description": "A macOS-style New Tab dashboard (dashboard/) plus a thin Safari Web Extension launcher (extension/).",
   "scripts": {
-    "dev": "vite dev",
-    "build": "vite build",
-    "preview": "vite preview",
-    "check": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json",
-    "check:watch": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json --watch"
-  },
-  "devDependencies": {
-    "@sveltejs/adapter-static": "^3.0.6",
-    "@sveltejs/kit": "^2.8.1",
-    "@sveltejs/vite-plugin-svelte": "^5.0.1",
-    "@tailwindcss/vite": "^4.0.0",
-    "svelte": "^5.2.7",
-    "svelte-check": "^4.1.0",
-    "tailwindcss": "^4.0.0",
-    "typescript": "^5.6.3",
-    "vite": "^6.0.1"
-  },
-  "dependencies": {
-    "motion": "^11.13.1"
+    "dev": "npm --prefix dashboard run dev",
+    "build": "npm --prefix dashboard run build",
+    "preview": "npm --prefix dashboard run preview",
+    "check": "npm --prefix dashboard run check",
+    "setup": "npm --prefix dashboard install",
+    "icons": "node extension/icons/_generate.mjs",
+    "extension": "node scripts/sync-extension.mjs",
+    "package": "node scripts/package-extension.mjs"
   }
 }

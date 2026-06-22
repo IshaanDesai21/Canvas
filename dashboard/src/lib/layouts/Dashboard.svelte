@@ -93,6 +93,10 @@
         </button>
       {/if}
       <SearchBar bind:this={search} />
+      {#if ui.editMode}
+        <!-- Drag anywhere on the bar to reposition it. -->
+        <div class="search-drag" onpointerdown={startSearchDrag} role="presentation" aria-hidden="true"></div>
+      {/if}
     </div>
   </section>
 
@@ -129,4 +133,6 @@
     font-size: 12px; font-weight: 600; color: var(--text-secondary); cursor: grab; white-space: nowrap;
   }
   .search-handle:active { cursor: grabbing; }
+  .search-drag { position: absolute; inset: 0; z-index: 6; cursor: grab; border-radius: var(--radius-pill); }
+  .search-drag:active { cursor: grabbing; }
 </style>

@@ -176,11 +176,12 @@
 
 <style>
   .dock-region {
-    position: fixed; left: 0; right: 0; bottom: 0; z-index: 55; height: 140px;
+    position: fixed; left: 0; right: 0; bottom: 0; z-index: 55; height: 200px;
     display: flex; justify-content: center; align-items: flex-end; pointer-events: none;
   }
-  /* Generous bottom hover zone that pops the dock up. */
-  .dock-trigger { position: absolute; left: 0; right: 0; bottom: 0; height: 52px; pointer-events: auto; }
+  /* Generous bottom hover zone — the dock rises while the cursor is still a
+     comfortable distance above it, without reaching to the middle of the screen. */
+  .dock-trigger { position: absolute; left: 0; right: 0; bottom: 0; height: 130px; pointer-events: auto; }
 
   .dock-stack {
     pointer-events: auto; margin-bottom: 14px; display: flex; flex-direction: column; align-items: center; gap: 10px;

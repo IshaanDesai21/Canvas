@@ -96,7 +96,8 @@
 
   <!-- Progress ring with countdown -->
   <div class="ring-wrap">
-    <svg class="ring" viewBox="0 0 120 120" aria-hidden="true">
+    <svg class="ring" viewBox="0 0 120 120" aria-hidden="true" focusable="false">
+      <circle class="track" cx="60" cy="60" r={R} />
       <circle
         class="fill"
         cx="60"
@@ -185,6 +186,21 @@
     aspect-ratio: 1;
     max-width: 100%;
     transform: rotate(-90deg);
+    /* Never draw a focus/outline box around the SVG. */
+    outline: none;
+    border: none;
+    box-shadow: none;
+  }
+  .ring:focus,
+  .ring:focus-visible {
+    outline: none;
+    box-shadow: none;
+  }
+  /* Faint full circle that the progress arc fills over, like a progress bar. */
+  .track {
+    fill: none;
+    stroke: var(--control-fill);
+    stroke-width: 8;
   }
   .fill {
     fill: none;

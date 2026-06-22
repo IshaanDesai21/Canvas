@@ -227,6 +227,9 @@
   .adder { display: flex; align-items: center; gap: 8px; padding: 6px 8px; border-radius: var(--radius-sm); background: var(--control-fill); }
   .adder .plus { color: var(--accent); display: grid; place-items: center; }
   .adder input { flex: 1; background: none; border: none; outline: none; font-size: 0.92rem; min-width: 0; }
+  /* No focus halo around the inline add-task field. */
+  .adder input:focus,
+  .adder input:focus-visible { outline: none; box-shadow: none; }
 
   .list { flex: 1; list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; }
   .task { display: flex; align-items: center; gap: 10px; padding: 7px 4px; border-bottom: 1px solid var(--hairline); }

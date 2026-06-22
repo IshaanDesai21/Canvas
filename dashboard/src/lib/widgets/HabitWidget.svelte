@@ -182,10 +182,10 @@
   }
   .dots {
     display: flex;
-    gap: 4px;
+    gap: 6px;
   }
   .dot {
-    --d: clamp(15px, 4cqh, 20px);
+    --d: clamp(24px, 7cqh, 34px);
     width: var(--d);
     height: var(--d);
     border-radius: var(--radius-pill);
@@ -211,7 +211,7 @@
     border-color: var(--accent);
   }
   .day-label {
-    font-size: 0.55rem;
+    font-size: 0.62rem;
     line-height: 1;
     color: var(--text-tertiary);
     text-transform: uppercase;

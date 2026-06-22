@@ -4,7 +4,7 @@ import { kv } from '$utils/storage';
 const KEY = 'settings:v1';
 
 export const DEFAULT_SETTINGS: Settings = {
-  theme: 'system',
+  theme: 'dark',
   preset: 'default',
   accent: '#0a84ff',
   clockFormat: '12h',
@@ -18,10 +18,9 @@ export const DEFAULT_SETTINGS: Settings = {
   transparency: 0.5,
   searchGlass: 0.7,
   searchPosition: { x: 0, y: 0 },
-  dockSize: 54,
-  dockMagnification: 1.65,
-  dockEnabled: true,
-  dockGlass: false
+  dockSize: 64,
+  dockMagnification: 1.35,
+  dockEnabled: true
 };
 
 /**

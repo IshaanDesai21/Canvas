@@ -31,15 +31,6 @@
 
   const isToday = (day: number) =>
     day === today.getDate() && month === today.getMonth() && year === today.getFullYear();
-
-  // Google Calendar / Apple Calendar integration ready — replace this stub
-  // with real fetched events keyed to the viewed day. Shape kept intentionally
-  // simple so the integration layer can map onto it directly.
-  const events = [
-    { id: 'e1', title: 'Design Review', time: '10:30 AM', color: 'var(--accent)' },
-    { id: 'e2', title: 'Lunch with Sam', time: '12:30 PM', color: '#ff9f0a' },
-    { id: 'e3', title: 'Gym', time: '6:00 PM', color: '#30d158' }
-  ];
 </script>
 
 <div class="calendar">
@@ -81,19 +72,6 @@
       {/if}
     {/each}
   </div>
-
-  <section class="upcoming">
-    <h3 class="up-title text-tertiary">Upcoming</h3>
-    <ul class="events">
-      {#each events as ev (ev.id)}
-        <li class="event">
-          <span class="dot" style:background={ev.color}></span>
-          <span class="ev-title">{ev.title}</span>
-          <span class="ev-time text-tertiary tabular">{ev.time}</span>
-        </li>
-      {/each}
-    </ul>
-  </section>
 </div>
 
 <style>
@@ -155,7 +133,8 @@
   }
   .grid {
     gap: clamp(1px, 0.8cqh, 4px) 0;
-    flex: 0 0 auto;
+    flex: 1 1 auto;
+    align-content: center;
   }
   .cell {
     display: grid;
@@ -176,55 +155,5 @@
     background: var(--accent);
     color: #fff;
     font-weight: 600;
-  }
-
-  .upcoming {
-    margin-top: auto;
-    flex: 1 1 auto;
-    min-height: 0;
-    display: flex;
-    flex-direction: column;
-    justify-content: flex-end;
-    gap: var(--space-2);
-    overflow: hidden;
-  }
-  .up-title {
-    font-size: 0.68rem;
-    font-weight: 700;
-    letter-spacing: 0.04em;
-    text-transform: uppercase;
-  }
-  .events {
-    list-style: none;
-    margin: 0;
-    padding: 0;
-    display: flex;
-    flex-direction: column;
-    gap: var(--space-2);
-    overflow-y: auto;
-    min-height: 0;
-  }
-  .event {
-    display: flex;
-    align-items: center;
-    gap: var(--space-2);
-    font-size: 0.8rem;
-  }
-  .dot {
-    flex: 0 0 auto;
-    width: 7px;
-    height: 7px;
-    border-radius: var(--radius-pill);
-  }
-  .ev-title {
-    color: var(--text-primary);
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-  }
-  .ev-time {
-    margin-left: auto;
-    font-size: 0.74rem;
-    flex: 0 0 auto;
   }
 </style>

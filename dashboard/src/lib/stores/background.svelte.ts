@@ -7,6 +7,12 @@ const KEY = 'background:v1';
 /** Curated gradient wallpapers, including a few animated ones. */
 export const GRADIENTS: GradientPreset[] = [
   {
+    id: 'obsidian',
+    name: 'Obsidian',
+    css: 'linear-gradient(160deg, #0a0a0c 0%, #161618 55%, #1f1f23 100%)',
+    animated: false
+  },
+  {
     id: 'monterey',
     name: 'Monterey',
     css: 'linear-gradient(160deg, #4b6cb7 0%, #182848 100%)',
@@ -58,7 +64,7 @@ export const GRADIENTS: GradientPreset[] = [
 
 const DEFAULT_BG: BackgroundConfig = {
   kind: 'gradient',
-  gradientId: 'tahoe',
+  gradientId: 'obsidian',
   imageId: null,
   videoId: null,
   blur: 0,

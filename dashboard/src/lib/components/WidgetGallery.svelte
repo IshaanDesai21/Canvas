@@ -4,9 +4,25 @@
   import { WIDGET_LIST } from '$widgets/registry';
   import Icon from '$components/Icon.svelte';
 
+  let query = $state('');
+
+  // Filter by name/description/category as the user types.
+  let results = $derived.by(() => {
+    const q = query.trim().toLowerCase();
+    if (!q) return WIDGET_LIST;
+    return WIDGET_LIST.filter((w) =>
+      `${w.name} ${w.description} ${w.category}`.toLowerCase().includes(q)
+    );
+  });
+
   function add(type: (typeof WIDGET_LIST)[number]['type']) {
     layout.add(type);
   }
+
+  // Reset the query each time the gallery opens.
+  $effect(() => {
+    if (ui.galleryOpen) query = '';
+  });
 </script>
 
 {#if ui.galleryOpen}
@@ -18,8 +34,27 @@
           <Icon name="xmark" size={18} strokeWidth={2.2} />
         </button>
       </header>
+      <!-- svelte-ignore a11y_autofocus -->
+      <div class="search glass-strong">
+        <Icon name="magnifier" size={17} strokeWidth={1.9} />
+        <input
+          class="selectable"
+          type="text"
+          bind:value={query}
+          placeholder="Search widgets…"
+          aria-label="Search widgets"
+          spellcheck="false"
+          autocomplete="off"
+          autofocus
+        />
+        {#if query}
+          <button class="clear" aria-label="Clear search" onclick={() => (query = '')}>
+            <Icon name="xmark" size={15} strokeWidth={2.2} />
+          </button>
+        {/if}
+      </div>
       <div class="grid scroll-area">
-        {#each WIDGET_LIST as w (w.type)}
+        {#each results as w (w.type)}
           <button class="card glass-interactive" onclick={() => add(w.type)}>
             <span class="ic"><Icon name={w.icon} size={24} /></span>
             <span class="meta">
@@ -28,6 +63,8 @@
             </span>
             <span class="plus" aria-hidden="true"><Icon name="plus" size={16} strokeWidth={2.4} /></span>
           </button>
+        {:else}
+          <p class="empty text-secondary">No widgets match “{query}”.</p>
         {/each}
       </div>
     </div>
@@ -41,7 +78,12 @@
   header { display: flex; align-items: center; justify-content: space-between; }
   header h2 { margin: 0; font-size: 1.4rem; }
   .close { width: 32px; height: 32px; display: grid; place-items: center; border-radius: 999px; }
+  .search { display: flex; align-items: center; gap: 9px; padding: 0 12px; height: 44px; border-radius: var(--radius-pill); color: var(--text-secondary); background: var(--control-fill); }
+  .search input { flex: 1; min-width: 0; background: none; border: none; outline: none; font-size: 0.98rem; color: var(--text-primary); }
+  .search .clear { width: 26px; height: 26px; display: grid; place-items: center; border-radius: 999px; color: var(--text-tertiary); flex-shrink: 0; }
+  .search .clear:hover { background: var(--control-fill-active); color: var(--text-primary); }
   .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(210px, 1fr)); gap: 10px; overflow-y: auto; padding: 2px; }
+  .empty { grid-column: 1 / -1; text-align: center; padding: 28px 0; font-size: 0.92rem; }
   .card { display: flex; align-items: center; gap: 12px; padding: 13px; border-radius: var(--radius-md); background: var(--control-fill); text-align: left; }
   .ic { width: 42px; height: 42px; display: grid; place-items: center; border-radius: 12px; background: var(--glass-fill-strong); color: var(--accent); flex-shrink: 0; }
   .meta { display: flex; flex-direction: column; gap: 2px; min-width: 0; }

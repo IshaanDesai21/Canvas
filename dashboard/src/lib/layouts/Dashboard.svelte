@@ -88,9 +88,18 @@
     <Greeting />
     <div class="search-pos" style="transform: translate({settings.current.searchPosition.x}px, {settings.current.searchPosition.y}px)">
       {#if ui.editMode}
-        <button class="search-handle glass" onpointerdown={startSearchDrag} aria-label="Move search bar">
-          <Icon name="grid" size={13} /> Drag to move
-        </button>
+        <div class="search-tools">
+          <button class="search-handle glass" onpointerdown={startSearchDrag} aria-label="Move search bar">
+            <Icon name="grid" size={13} /> Drag to move
+          </button>
+          <button
+            class="search-handle glass"
+            onclick={() => (settings.current.searchPosition = { x: 0, y: 0 })}
+            aria-label="Reset search bar position"
+          >
+            <Icon name="refresh" size={13} /> Reset position
+          </button>
+        </div>
       {/if}
       <SearchBar bind:this={search} />
       {#if ui.editMode}
@@ -127,12 +136,16 @@
   .done { font-weight: 600; font-size: 0.95rem; }
 
   .search-pos { position: relative; display: flex; flex-direction: column; align-items: center; }
-  .search-handle {
+  .search-tools {
     position: absolute; bottom: calc(100% + 10px); z-index: 5;
+    display: inline-flex; gap: 6px; white-space: nowrap;
+  }
+  .search-handle {
     display: inline-flex; align-items: center; gap: 6px; padding: 5px 12px; border-radius: 999px;
-    font-size: 12px; font-weight: 600; color: var(--text-secondary); cursor: grab; white-space: nowrap;
+    font-size: 12px; font-weight: 600; color: var(--text-secondary); cursor: grab;
   }
   .search-handle:active { cursor: grabbing; }
+  .search-tools .search-handle:last-child { cursor: pointer; }
   .search-drag { position: absolute; inset: 0; z-index: 6; cursor: grab; border-radius: var(--radius-pill); }
   .search-drag:active { cursor: grabbing; }
 </style>

@@ -16,7 +16,7 @@ export const WIDGET_DEFINITIONS: Record<WidgetType, WidgetDefinition> = {
     icon: 'cloud', defaultSize: { w: 2, h: 2 }, minSize: { w: 2, h: 2 }, maxSize: { w: 4, h: 3 }, category: 'info'
   },
   calendar: {
-    type: 'calendar', name: 'Calendar', description: 'Month view and upcoming events.',
+    type: 'calendar', name: 'Calendar', description: 'A clean month-at-a-glance view.',
     icon: 'calendar', defaultSize: { w: 3, h: 3 }, minSize: { w: 3, h: 3 }, maxSize: { w: 5, h: 5 }, category: 'time'
   },
   pomodoro: {
@@ -30,10 +30,6 @@ export const WIDGET_DEFINITIONS: Record<WidgetType, WidgetDefinition> = {
   quote: {
     type: 'quote', name: 'Quote', description: 'A fresh quote every day.',
     icon: 'quote', defaultSize: { w: 6, h: 1 }, minSize: { w: 3, h: 1 }, maxSize: { w: 8, h: 2 }, category: 'fun'
-  },
-  battery: {
-    type: 'battery', name: 'Battery', description: 'Live battery level and charging state.',
-    icon: 'battery', defaultSize: { w: 3, h: 2 }, minSize: { w: 2, h: 1 }, maxSize: { w: 4, h: 2 }, category: 'system'
   },
   worldclock: {
     type: 'worldclock', name: 'World Clock', description: 'Times across the globe.',
@@ -55,16 +51,12 @@ export const WIDGET_DEFINITIONS: Record<WidgetType, WidgetDefinition> = {
     type: 'stocks', name: 'Stocks', description: 'Watchlist with sparklines.',
     icon: 'chart', defaultSize: { w: 3, h: 2 }, minSize: { w: 2, h: 2 }, maxSize: { w: 5, h: 4 }, category: 'info'
   },
-  crypto: {
-    type: 'crypto', name: 'Crypto', description: 'Track your favourite coins.',
-    icon: 'coins', defaultSize: { w: 3, h: 2 }, minSize: { w: 2, h: 2 }, maxSize: { w: 5, h: 4 }, category: 'info'
-  },
   spotify: {
     type: 'spotify', name: 'Now Playing', description: 'Whatever the browser is playing.',
     icon: 'music', defaultSize: { w: 4, h: 2 }, minSize: { w: 3, h: 2 }, maxSize: { w: 6, h: 3 }, category: 'media'
   },
   systeminfo: {
-    type: 'systeminfo', name: 'System Info', description: 'CPU, memory and network at a glance.',
+    type: 'systeminfo', name: 'System Info', description: 'Network and platform at a glance.',
     icon: 'cpu', defaultSize: { w: 3, h: 2 }, minSize: { w: 2, h: 2 }, maxSize: { w: 5, h: 3 }, category: 'system'
   },
   tasks: {
@@ -92,13 +84,11 @@ export const WIDGET_LOADERS: Record<WidgetType, Loader> = {
   pomodoro: () => import('./PomodoroWidget.svelte'),
   notes: () => import('./NotesWidget.svelte'),
   quote: () => import('./QuoteWidget.svelte'),
-  battery: () => import('./BatteryWidget.svelte'),
   worldclock: () => import('./WorldClockWidget.svelte'),
   countdown: () => import('./CountdownWidget.svelte'),
   calculator: () => import('./CalculatorWidget.svelte'),
   habit: () => import('./HabitWidget.svelte'),
   stocks: () => import('./StocksWidget.svelte'),
-  crypto: () => import('./CryptoWidget.svelte'),
   spotify: () => import('./SpotifyWidget.svelte'),
   systeminfo: () => import('./SystemInfoWidget.svelte'),
   tasks: () => import('./TasksWidget.svelte')

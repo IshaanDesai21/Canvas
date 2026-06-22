@@ -97,7 +97,6 @@
   <!-- Progress ring with countdown -->
   <div class="ring-wrap">
     <svg class="ring" viewBox="0 0 120 120" aria-hidden="true">
-      <circle class="track" cx="60" cy="60" r={R} />
       <circle
         class="fill"
         cx="60"
@@ -186,11 +185,6 @@
     aspect-ratio: 1;
     max-width: 100%;
     transform: rotate(-90deg);
-  }
-  .track {
-    fill: none;
-    stroke: var(--control-fill);
-    stroke-width: 8;
   }
   .fill {
     fill: none;

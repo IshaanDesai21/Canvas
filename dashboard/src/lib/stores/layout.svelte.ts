@@ -2,7 +2,14 @@ import type { WidgetInstance, WidgetType } from '$lib/types';
 import { kv } from '$utils/storage';
 import { uid } from '$utils/id';
 import { findFreeSlot } from '$utils/grid';
-import { getWidgetDefinition } from '$widgets/registry';
+import { getWidgetDefinition, WIDGET_DEFINITIONS } from '$widgets/registry';
+
+/** Drop any widgets whose type is no longer in the registry (e.g. removed
+ *  battery/crypto widgets persisted from an older version), so the grid never
+ *  tries to load a chunk that doesn't exist. */
+function pruneUnknown(widgets: WidgetInstance[]): WidgetInstance[] {
+  return widgets.filter((w) => w.type in WIDGET_DEFINITIONS);
+}
 
 const KEY = 'layout:v1';
 
@@ -15,7 +22,7 @@ const DEFAULT_LAYOUT: WidgetInstance[] = [
   { id: uid('w'), type: 'pomodoro', x: 0, y: 2, w: 3, h: 3 },
   { id: uid('w'), type: 'worldclock', x: 3, y: 2, w: 2, h: 3 },
   { id: uid('w'), type: 'tasks', x: 8, y: 3, w: 4, h: 3 },
-  { id: uid('w'), type: 'battery', x: 5, y: 3, w: 3, h: 2 },
+  { id: uid('w'), type: 'stocks', x: 5, y: 3, w: 3, h: 2 },
   { id: uid('w'), type: 'quote', x: 0, y: 5, w: 5, h: 1 }
 ];
 
@@ -25,7 +32,7 @@ const DEFAULT_LAYOUT: WidgetInstance[] = [
  */
 class LayoutStore {
   widgets = $state<WidgetInstance[]>(
-    kv.get<WidgetInstance[] | null>(KEY, null) ?? structuredClone(DEFAULT_LAYOUT)
+    pruneUnknown(kv.get<WidgetInstance[] | null>(KEY, null) ?? structuredClone(DEFAULT_LAYOUT))
   );
 
   constructor() {
@@ -70,7 +77,7 @@ class LayoutStore {
   }
 
   replace(widgets: WidgetInstance[]) {
-    this.widgets = widgets;
+    this.widgets = pruneUnknown(widgets);
   }
 }
 

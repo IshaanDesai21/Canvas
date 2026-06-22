@@ -1,12 +1,17 @@
 <script lang="ts">
   import type { WidgetInstance } from '$lib/types';
   import { fetchWeather, getCoords, type WeatherData } from '$utils/weather';
+  import { kv } from '$utils/storage';
   import Icon from '$components/Icon.svelte';
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   let { instance }: { instance: WidgetInstance } = $props();
 
-  let data = $state<WeatherData | null>(null);
+  const CACHE_KEY = 'weather:last';
+
+  // Seed from the last successful reading so a fresh offline tab shows real
+  // (if slightly stale) weather instead of an error.
+  let data = $state<WeatherData | null>(kv.get<WeatherData | null>(CACHE_KEY, null));
   let error = $state(false);
 
   async function load() {
@@ -14,8 +19,10 @@
     try {
       const { lat, lon } = await getCoords();
       data = await fetchWeather(lat, lon, true);
+      kv.set(CACHE_KEY, data);
     } catch {
-      error = true;
+      // Only surface an error when we have nothing cached to fall back on.
+      if (!data) error = true;
     }
   }
 

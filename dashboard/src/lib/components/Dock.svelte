@@ -12,7 +12,6 @@
   let mouseX = $state<number | null>(null);
   let hovered = $state<number | null>(null);
   let revealed = $state(false);
-  let failed = $state<Set<string>>(new Set());
   let urls = $state<Record<string, string>>({});
 
   // Add-to-dock form (edit mode).
@@ -24,18 +23,9 @@
   const base = $derived(settings.current.dockSize);
   const mag = $derived(settings.current.dockMagnification);
   const reduce = $derived(settings.current.reduceMotion);
-  const glass = $derived(settings.current.dockGlass);
   const editing = $derived(ui.editMode);
   const shown = $derived(revealed || editing);
 
-  function favicon(app: DockApp): string | null {
-    try {
-      const host = new URL(app.url).hostname;
-      return host ? `https://www.google.com/s2/favicons?domain=${host}&sz=128` : null;
-    } catch {
-      return null;
-    }
-  }
   /** A live website thumbnail for the hover preview (WordPress mShots, free). */
   function shot(app: DockApp): string | null {
     try {
@@ -139,8 +129,6 @@
       >
         {#each dock.apps as app, i (app.id)}
           {@const s = scaleFor(i)}
-          {@const icon = favicon(app)}
-          {@const ok = icon && !failed.has(icon)}
           {@const img = app.imageId ? urls[app.imageId] : null}
           {@const preview = shot(app)}
           <a
@@ -161,14 +149,8 @@
 
             {#if img}
               <span class="tile img-tile"><img class="fav" src={img} alt="" /></span>
-            {:else if glass}
-              <span class="tile glass-tile"><Icon name={app.glyph} size={base * 0.5} strokeWidth={1.8} /></span>
-            {:else if ok}
-              <span class="tile glass-tile"><img class="fav" src={icon} alt="" loading="lazy" onerror={() => (failed = new Set(failed).add(icon))} /></span>
             {:else}
-              <span class="tile grad" style="background:linear-gradient(150deg, {app.color[0]}, {app.color[1]})">
-                <Icon name={app.glyph} size={base * 0.46} strokeWidth={1.8} />
-              </span>
+              <span class="tile glass-tile"><Icon name={app.glyph} size={base * 0.5} strokeWidth={1.8} /></span>
             {/if}
 
             {#if hovered === i && !editing}
@@ -221,19 +203,25 @@
   }
   .tile.img-tile .fav { width: 100%; height: 100%; }
   .tile.add-tile { color: var(--text-secondary); border: 1.5px dashed var(--glass-edge); box-shadow: none; }
-  .tile.grad { color: #fff; box-shadow: inset 0 1px 1px rgba(255,255,255,0.4), 0 4px 10px rgba(0,0,0,0.22); }
-  .tile.grad :global(svg) { filter: drop-shadow(0 1px 1px rgba(0,0,0,0.25)); }
 
   .remove {
     position: absolute; top: -6px; right: -6px; z-index: 5; width: 20px; height: 20px;
     display: grid; place-items: center; border-radius: 999px; background: #ff453a; color: #fff; box-shadow: 0 1px 4px rgba(0,0,0,0.4);
   }
 
-  /* Hover preview card: a live website thumbnail + label. */
+  /* Hover preview card: a live website thumbnail + label, centered directly
+     above the icon. Centering uses a negative margin (half the fixed width)
+     rather than translateX(-50%) — the shared `fade-in` keyframe ends on
+     `transform: none`, which would otherwise wipe out the centering and shove
+     the card up-and-to-the-right. */
   .preview {
-    position: absolute; bottom: calc(100% + 14px); left: 50%; transform: translateX(-50%);
+    position: absolute; bottom: calc(100% + 14px); left: 50%; margin-left: -100px;
     width: 200px; border-radius: var(--radius-md); overflow: hidden; pointer-events: none;
-    animation: fade-in var(--dur-fast) var(--ease-out-quart) both;
+    animation: preview-in var(--dur-fast) var(--ease-out-quart) both;
+  }
+  @keyframes preview-in {
+    from { opacity: 0; transform: translateY(6px); }
+    to { opacity: 1; transform: none; }
   }
   .shot { display: block; width: 100%; height: 118px; object-fit: cover; background: var(--control-fill); }
   .preview .pl { display: block; padding: 7px 11px; font-size: 12.5px; font-weight: 600; text-align: center; }

@@ -37,13 +37,11 @@ export type WidgetType =
   | 'pomodoro'
   | 'notes'
   | 'quote'
-  | 'battery'
   | 'worldclock'
   | 'countdown'
   | 'calculator'
   | 'habit'
   | 'stocks'
-  | 'crypto'
   | 'spotify'
   | 'systeminfo'
   | 'tasks';
@@ -145,6 +143,4 @@ export interface Settings {
   /** Dock hover magnification factor. */
   dockMagnification: number;
   dockEnabled: boolean;
-  /** When true, dock tiles drop their colored background for frosted glass. */
-  dockGlass: boolean;
 }

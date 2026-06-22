@@ -161,8 +161,7 @@
     <section>
       <h3>Dock</h3>
       <label class="line"><span>Show dock</span><Toggle bind:checked={settings.current.dockEnabled} label="Dock" /></label>
-      <label class="line"><span>Glass icons</span><Toggle bind:checked={settings.current.dockGlass} label="Glass dock icons" /></label>
-      <Slider label="Dock size" min={40} max={72} step={1} bind:value={settings.current.dockSize} format={(v) => `${v}px`} />
+      <Slider label="Dock size" min={40} max={84} step={1} bind:value={settings.current.dockSize} format={(v) => `${v}px`} />
       <Slider label="Magnification" min={1} max={2.2} step={0.05} bind:value={settings.current.dockMagnification} format={(v) => `${v.toFixed(2)}×`} />
     </section>
 

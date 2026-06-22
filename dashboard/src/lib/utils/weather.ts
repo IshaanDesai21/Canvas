@@ -28,8 +28,17 @@ export interface WeatherData {
   unit: string;
 }
 
-/** Cupertino — used when geolocation is denied or unavailable. */
+/** Cupertino — last-resort fallback when no location source is reachable. */
 export const FALLBACK_COORDS = { lat: 37.323, lon: -122.0322, label: 'Cupertino' };
+
+export interface ResolvedLocation {
+  lat: number;
+  lon: number;
+  /** Human-readable place (city) when known, so the user can verify it. */
+  place: string | null;
+  /** How the location was determined. */
+  source: 'gps' | 'ip' | 'fallback';
+}
 
 const CODE_MAP: Record<number, { label: string; icon: string }> = {
   0: { label: 'Clear', icon: 'sun' },
@@ -59,19 +68,77 @@ export function describeCode(code: number): { label: string; icon: string } {
   return CODE_MAP[code] ?? { label: 'Unknown', icon: 'cloud' };
 }
 
-/** Resolve the user's coordinates, falling back gracefully. */
-export function getCoords(): Promise<{ lat: number; lon: number }> {
+async function fetchWithTimeout(url: string, ms = 5000): Promise<Response> {
+  const ctrl = new AbortController();
+  const t = setTimeout(() => ctrl.abort(), ms);
+  try {
+    return await fetch(url, { signal: ctrl.signal });
+  } finally {
+    clearTimeout(t);
+  }
+}
+
+/** Precise device location — only resolves if the user has granted permission. */
+function browserGeolocation(): Promise<{ lat: number; lon: number } | null> {
   return new Promise((resolve) => {
     if (typeof navigator === 'undefined' || !navigator.geolocation) {
-      resolve({ lat: FALLBACK_COORDS.lat, lon: FALLBACK_COORDS.lon });
+      resolve(null);
       return;
     }
     navigator.geolocation.getCurrentPosition(
       (pos) => resolve({ lat: pos.coords.latitude, lon: pos.coords.longitude }),
-      () => resolve({ lat: FALLBACK_COORDS.lat, lon: FALLBACK_COORDS.lon }),
+      () => resolve(null),
       { timeout: 8000, maximumAge: 600_000 }
     );
   });
+}
+
+/** Turn precise coordinates into a city name (keyless, CORS-enabled). */
+async function reverseGeocode(lat: number, lon: number): Promise<string | null> {
+  try {
+    const res = await fetchWithTimeout(
+      `https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${lat}&longitude=${lon}&localityLanguage=en`
+    );
+    if (!res.ok) return null;
+    const d = await res.json();
+    return d.city || d.locality || d.principalSubdivision || null;
+  } catch {
+    return null;
+  }
+}
+
+/** Coarse, permission-free location from the visitor's IP (keyless, CORS). */
+async function ipLocation(): Promise<ResolvedLocation | null> {
+  try {
+    const res = await fetchWithTimeout('https://ipwho.is/');
+    if (!res.ok) return null;
+    const d = await res.json();
+    if (d && d.success !== false && typeof d.latitude === 'number' && typeof d.longitude === 'number') {
+      return { lat: d.latitude, lon: d.longitude, place: d.city || d.region || null, source: 'ip' };
+    }
+    return null;
+  } catch {
+    return null;
+  }
+}
+
+/**
+ * Resolve the user's location for weather. Prefers precise device geolocation
+ * (with permission); if that's denied or unavailable — common on a new-tab
+ * page — falls back to permission-free IP-based location so the widget still
+ * shows the user's actual city, and only then to a hardcoded default.
+ */
+export async function getLocation(): Promise<ResolvedLocation> {
+  const precise = await browserGeolocation();
+  if (precise) {
+    const place = await reverseGeocode(precise.lat, precise.lon);
+    return { ...precise, place, source: 'gps' };
+  }
+
+  const ip = await ipLocation();
+  if (ip) return ip;
+
+  return { lat: FALLBACK_COORDS.lat, lon: FALLBACK_COORDS.lon, place: FALLBACK_COORDS.label, source: 'fallback' };
 }
 
 export async function fetchWeather(lat: number, lon: number, fahrenheit = true): Promise<WeatherData> {

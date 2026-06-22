@@ -1,6 +1,6 @@
 <script lang="ts">
   import type { WidgetInstance } from '$lib/types';
-  import { fetchWeather, getCoords, type WeatherData } from '$utils/weather';
+  import { fetchWeather, getLocation, type WeatherData } from '$utils/weather';
   import { kv } from '$utils/storage';
   import Icon from '$components/Icon.svelte';
 
@@ -8,17 +8,21 @@
   let { instance }: { instance: WidgetInstance } = $props();
 
   const CACHE_KEY = 'weather:last';
+  const PLACE_KEY = 'weather:place';
 
   // Seed from the last successful reading so a fresh offline tab shows real
   // (if slightly stale) weather instead of an error.
   let data = $state<WeatherData | null>(kv.get<WeatherData | null>(CACHE_KEY, null));
+  let place = $state<string | null>(kv.get<string | null>(PLACE_KEY, null));
   let error = $state(false);
 
   async function load() {
     error = false;
     try {
-      const { lat, lon } = await getCoords();
-      data = await fetchWeather(lat, lon, true);
+      const loc = await getLocation();
+      place = loc.place;
+      kv.set(PLACE_KEY, place);
+      data = await fetchWeather(loc.lat, loc.lon, true);
       kv.set(CACHE_KEY, data);
     } catch {
       // Only surface an error when we have nothing cached to fall back on.
@@ -53,6 +57,12 @@
     {#if today}
       <div class="hilo tabular text-tertiary">H:{today.max}°&nbsp;&nbsp;L:{today.min}°</div>
     {/if}
+    {#if place}
+      <div class="place text-tertiary" title="Weather location">
+        <Icon name="pin" size={11} strokeWidth={1.8} />
+        <span>{place}</span>
+      </div>
+    {/if}
   {/if}
 </div>
 
@@ -82,4 +92,9 @@
   .deg { font-size: 0.4em; font-weight: 500; color: var(--text-secondary); margin-top: 0.2em; }
   .label { font-size: clamp(0.85rem, 10cqmin, 1.2rem); font-weight: 500; }
   .hilo { font-size: clamp(0.72rem, 8cqmin, 0.95rem); margin-top: 0.2em; }
+  .place {
+    display: inline-flex; align-items: center; gap: 3px;
+    font-size: clamp(0.66rem, 7cqmin, 0.82rem); margin-top: 0.3em; max-width: 100%;
+  }
+  .place span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 </style>

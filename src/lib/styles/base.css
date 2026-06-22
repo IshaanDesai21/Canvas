@@ -1,0 +1,109 @@
+/* Base element styling and shared keyframes/utilities. */
+
+html {
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+body {
+  color: var(--text-primary);
+  background: var(--bg-fallback);
+  overflow: hidden; /* the dashboard manages its own scroll regions */
+  -webkit-user-select: none;
+  user-select: none;
+}
+
+/* Re-enable selection in places where text matters (notes, calculator). */
+.selectable,
+.selectable * {
+  -webkit-user-select: text;
+  user-select: text;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+/* Apple-style focus ring: a soft accent halo, never a hard outline. */
+:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 4px var(--accent-soft), 0 0 0 1.5px var(--accent);
+}
+
+button {
+  font: inherit;
+  color: inherit;
+  cursor: pointer;
+  border: none;
+  background: none;
+}
+
+input,
+textarea {
+  font: inherit;
+  color: inherit;
+}
+
+::placeholder {
+  color: var(--text-tertiary);
+}
+
+/* Thin, auto-hiding scrollbars inside widgets. */
+.scroll-area {
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: var(--control-fill) transparent;
+}
+.scroll-area::-webkit-scrollbar {
+  width: 6px;
+}
+.scroll-area::-webkit-scrollbar-thumb {
+  background: var(--control-fill);
+  border-radius: 999px;
+}
+
+/* Typography helpers used across the greeting and widget headers. */
+.text-display {
+  font-family: var(--font-rounded);
+  font-weight: 600;
+  letter-spacing: -0.02em;
+}
+.text-secondary {
+  color: var(--text-secondary);
+}
+.text-tertiary {
+  color: var(--text-tertiary);
+}
+.tabular {
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: 'tnum';
+}
+
+/* Shared entrance animations. */
+@keyframes fade-in {
+  from {
+    opacity: 0;
+    transform: translateY(8px) scale(0.99);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+.animate-in {
+  animation: fade-in var(--dur-base) var(--ease-out-quart) both;
+}
+
+/* iOS-home-screen jiggle used in edit mode. */
+@keyframes jiggle {
+  0% {
+    transform: rotate(-0.6deg);
+  }
+  50% {
+    transform: rotate(0.6deg);
+  }
+  100% {
+    transform: rotate(-0.6deg);
+  }
+}

@@ -1,0 +1,108 @@
+/*
+ * Liquid Glass primitives.
+ *
+ * A glass surface is built from four stacked layers:
+ *   1. a translucent fill (the body of the material)
+ *   2. a real backdrop blur + saturation boost (frosts whatever is behind)
+ *   3. a ::before top sheen gradient (light diffusion / wet reflection)
+ *   4. a hairline edge highlight + soft inset shadow (the bevelled rim)
+ * plus a very soft outer drop shadow for float.
+ */
+
+.glass {
+  position: relative;
+  background-color: var(--glass-fill);
+  background-image: var(--glass-sheen);
+  backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturate));
+  -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturate));
+  border-radius: var(--radius-widget);
+  box-shadow:
+    inset 0 1px 0 0 var(--glass-edge),
+    inset 0 0 0 1px var(--glass-edge-shadow),
+    var(--shadow-widget);
+  isolation: isolate;
+}
+
+/* Inner reflection: a faint specular highlight that pools at the top edge. */
+.glass::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  padding: 1px;
+  background: linear-gradient(
+    140deg,
+    var(--glass-edge) 0%,
+    transparent 40%,
+    transparent 60%,
+    var(--glass-edge-shadow) 100%
+  );
+  -webkit-mask:
+    linear-gradient(#000 0 0) content-box,
+    linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  pointer-events: none;
+  z-index: 1;
+}
+
+.glass-thin {
+  background-color: var(--glass-fill-thin);
+  backdrop-filter: blur(calc(var(--glass-blur) * 0.6)) saturate(var(--glass-saturate));
+  -webkit-backdrop-filter: blur(calc(var(--glass-blur) * 0.6)) saturate(var(--glass-saturate));
+}
+
+.glass-strong {
+  background-color: var(--glass-fill-strong);
+  backdrop-filter: blur(var(--glass-blur-strong)) saturate(var(--glass-saturate));
+  -webkit-backdrop-filter: blur(var(--glass-blur-strong)) saturate(var(--glass-saturate));
+}
+
+/* A pill-shaped glass control (search bar, command palette input). */
+.glass-pill {
+  border-radius: var(--radius-pill);
+}
+
+/* Small inline frosted control fill (segmented buttons, chips). */
+.control {
+  background-color: var(--control-fill);
+  border-radius: var(--radius-sm);
+  transition: background-color var(--dur-fast) var(--ease-smooth);
+}
+.control:hover {
+  background-color: var(--control-fill-active);
+}
+
+/* Hover lift used by interactive glass cards (Dock items, gallery tiles). */
+.glass-interactive {
+  transition:
+    transform var(--dur-base) var(--ease-spring),
+    box-shadow var(--dur-base) var(--ease-smooth);
+}
+.glass-interactive:hover {
+  transform: translateY(-2px);
+  box-shadow:
+    inset 0 1px 0 0 var(--glass-edge),
+    inset 0 0 0 1px var(--glass-edge-shadow),
+    var(--shadow-float);
+}
+
+/* A subtle moving shimmer for highlights / loading states. */
+@keyframes glass-shimmer {
+  0% {
+    background-position: -150% 0;
+  }
+  100% {
+    background-position: 250% 0;
+  }
+}
+.shimmer {
+  background-image: linear-gradient(
+    100deg,
+    transparent 30%,
+    color-mix(in srgb, var(--glass-edge) 60%, transparent) 50%,
+    transparent 70%
+  );
+  background-size: 200% 100%;
+  animation: glass-shimmer 2.4s var(--ease-smooth) infinite;
+}

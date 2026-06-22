@@ -1,0 +1,32 @@
+<!doctype html>
+<html lang="en" data-theme="system">
+  <head>
+    <meta charset="utf-8" />
+    <link rel="icon" href="%sveltekit.assets%/favicon.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta name="color-scheme" content="light dark" />
+    <title>New Tab</title>
+    <script>
+      // Apply the persisted theme before first paint to avoid a flash.
+      (function () {
+        try {
+          const raw = localStorage.getItem('mynewtab:settings:v1');
+          const theme = raw ? JSON.parse(raw)?.theme : 'system';
+          const root = document.documentElement;
+          const resolved =
+            theme === 'system' || !theme
+              ? window.matchMedia('(prefers-color-scheme: dark)').matches
+                ? 'dark'
+                : 'light'
+              : theme;
+          root.setAttribute('data-theme', resolved);
+          root.style.colorScheme = resolved;
+        } catch (_) {}
+      })();
+    </script>
+    %sveltekit.head%
+  </head>
+  <body data-sveltekit-preload-data="hover">
+    <div style="display: contents">%sveltekit.body%</div>
+  </body>
+</html>

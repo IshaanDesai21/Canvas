@@ -77,20 +77,22 @@
   // reaches the bottom edge (or hovers the dock itself).
   let hideTimer = 0;
   function reveal() { clearTimeout(hideTimer); revealed = true; }
+  /** Slide the dock back down (the CSS transition does the animation). */
+  function hide() { clearTimeout(hideTimer); revealed = false; mouseX = null; hovered = null; }
   function scheduleHide() {
     clearTimeout(hideTimer);
-    hideTimer = window.setTimeout(() => { revealed = false; mouseX = null; hovered = null; }, 240);
+    hideTimer = window.setTimeout(hide, 240);
   }
 
-  // Reveal when the cursor nears the bottom; hide once it moves well away.
-  // The gap between the two thresholds is hysteresis so it doesn't flicker.
+  // Reveal when the cursor nears the bottom; slide away once it moves well
+  // off. The gap between the two thresholds is hysteresis so it doesn't flicker.
   const REVEAL_WITHIN = 130;
-  const HIDE_BEYOND = 260;
+  const HIDE_BEYOND = 240;
   function onWindowMove(e: PointerEvent) {
     if (!settings.current.dockEnabled || editing) return;
     const fromBottom = window.innerHeight - e.clientY;
     if (fromBottom <= REVEAL_WITHIN) reveal();
-    else if (fromBottom > HIDE_BEYOND && revealed) scheduleHide();
+    else if (fromBottom > HIDE_BEYOND && revealed) hide();
   }
 
   async function addApp() {
@@ -198,10 +200,10 @@
 
   .dock-stack {
     pointer-events: auto; margin-bottom: 14px; display: flex; flex-direction: column; align-items: center; gap: 10px;
-    transition: transform var(--dur-base) var(--ease-spring), opacity var(--dur-base) var(--ease-smooth);
+    transition: transform 0.38s cubic-bezier(0.34, 1.2, 0.4, 1), opacity 0.32s var(--ease-smooth);
   }
-  /* Fully tucked away (incl. shadow) until the bottom zone is hovered. */
-  .dock-stack:not(.shown) { transform: translateY(240%); opacity: 0; pointer-events: none; }
+  /* Slide fully down off-screen (incl. shadow) when not revealed. */
+  .dock-stack:not(.shown) { transform: translateY(260%); opacity: 0; pointer-events: none; }
 
   .dock { display: flex; align-items: flex-end; gap: 8px; padding: 10px 12px; border-radius: 26px; contain: layout style; }
   .dock.editing { animation: jiggle 0.34s ease-in-out infinite; }

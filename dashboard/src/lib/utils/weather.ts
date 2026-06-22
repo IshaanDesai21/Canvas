@@ -37,7 +37,7 @@ export interface ResolvedLocation {
   /** Human-readable place (city) when known, so the user can verify it. */
   place: string | null;
   /** How the location was determined. */
-  source: 'gps' | 'ip' | 'fallback';
+  source: 'gps' | 'ip' | 'fallback' | 'manual';
 }
 
 const CODE_MAP: Record<number, { label: string; icon: string }> = {
@@ -139,6 +139,25 @@ export async function getLocation(): Promise<ResolvedLocation> {
   if (ip) return ip;
 
   return { lat: FALLBACK_COORDS.lat, lon: FALLBACK_COORDS.lon, place: FALLBACK_COORDS.label, source: 'fallback' };
+}
+
+/** Look up a city the user typed → coordinates (Open-Meteo geocoding, keyless). */
+export async function geocodeCity(query: string): Promise<ResolvedLocation | null> {
+  const q = query.trim();
+  if (!q) return null;
+  try {
+    const res = await fetchWithTimeout(
+      `https://geocoding-api.open-meteo.com/v1/search?name=${encodeURIComponent(q)}&count=1&language=en&format=json`
+    );
+    if (!res.ok) return null;
+    const d = await res.json();
+    const r = d.results?.[0];
+    if (!r) return null;
+    const place = [r.name, r.admin1, r.country_code].filter(Boolean).slice(0, 2).join(', ');
+    return { lat: r.latitude, lon: r.longitude, place: place || r.name, source: 'manual' };
+  } catch {
+    return null;
+  }
 }
 
 export async function fetchWeather(lat: number, lon: number, fahrenheit = true): Promise<WeatherData> {

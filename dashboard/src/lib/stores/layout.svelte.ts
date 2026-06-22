@@ -13,17 +13,16 @@ function pruneUnknown(widgets: WidgetInstance[]): WidgetInstance[] {
 
 const KEY = 'layout:v1';
 
-/** A pleasant default arrangement shown on first run. */
+/** A pleasant default arrangement shown on first run — a tidy 4-across grid. */
 const DEFAULT_LAYOUT: WidgetInstance[] = [
   { id: uid('w'), type: 'clock', x: 0, y: 0, w: 3, h: 2 },
-  { id: uid('w'), type: 'weather', x: 3, y: 0, w: 2, h: 2 },
-  { id: uid('w'), type: 'calendar', x: 5, y: 0, w: 3, h: 3 },
-  { id: uid('w'), type: 'notes', x: 8, y: 0, w: 4, h: 3 },
+  { id: uid('w'), type: 'weather', x: 3, y: 0, w: 3, h: 2 },
+  { id: uid('w'), type: 'calendar', x: 6, y: 0, w: 3, h: 3 },
+  { id: uid('w'), type: 'notes', x: 9, y: 0, w: 3, h: 3 },
   { id: uid('w'), type: 'pomodoro', x: 0, y: 2, w: 3, h: 3 },
-  { id: uid('w'), type: 'worldclock', x: 3, y: 2, w: 2, h: 3 },
-  { id: uid('w'), type: 'tasks', x: 8, y: 3, w: 4, h: 3 },
-  { id: uid('w'), type: 'stocks', x: 5, y: 3, w: 3, h: 2 },
-  { id: uid('w'), type: 'quote', x: 0, y: 5, w: 5, h: 1 }
+  { id: uid('w'), type: 'calculator', x: 3, y: 2, w: 3, h: 4 },
+  { id: uid('w'), type: 'tasks', x: 6, y: 3, w: 3, h: 3 },
+  { id: uid('w'), type: 'quote', x: 9, y: 3, w: 3, h: 1 }
 ];
 
 /**

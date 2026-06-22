@@ -49,41 +49,43 @@ sw.addEventListener('fetch', (event) => {
   const url = new URL(request.url);
   const sameOrigin = url.origin === sw.location.origin;
 
+  // Cross-origin (weather/IP APIs, remote images): straight to network, with a
+  // cache fallback so anything we happened to store still works offline.
+  if (!sameOrigin) {
+    event.respondWith(
+      fetch(request).catch(async () => (await caches.match(request)) || Response.error())
+    );
+    return;
+  }
+
+  // Same-origin: serve from cache FIRST so a new tab paints instantly, then
+  // refresh the cache in the background (stale-while-revalidate). Build/static
+  // assets are content-hashed and the precache is version-keyed, so the cached
+  // shell and its assets always match.
   event.respondWith(
     (async () => {
       const cache = await caches.open(CACHE);
+      const isNav = request.mode === 'navigate';
 
-      // Cache-first for our own precached build/static assets — they're
-      // content-hashed, so a cache hit is always correct.
-      if (sameOrigin && PRECACHE.includes(url.pathname)) {
-        const hit = await cache.match(url.pathname);
-        if (hit) return hit;
+      const cached =
+        (await cache.match(request)) ||
+        (isNav ? (await cache.match(`${base}/`)) || (await cache.match('/')) : undefined);
+
+      const network = fetch(request)
+        .then((response) => {
+          if (response && response.ok && response.type === 'basic') {
+            cache.put(request, response.clone());
+          }
+          return response;
+        })
+        .catch(() => undefined);
+
+      // Don't block paint on the revalidation when we have a cache hit.
+      if (cached) {
+        event.waitUntil(network.then(() => undefined));
+        return cached;
       }
-
-      // Otherwise network-first, falling back to cache when offline.
-      try {
-        const response = await fetch(request);
-        // Stash good same-origin responses so they're available offline next time.
-        if (sameOrigin && response.ok && response.type === 'basic') {
-          cache.put(request, response.clone());
-        }
-        return response;
-      } catch {
-        const cached = await cache.match(request);
-        if (cached) return cached;
-
-        // For page navigations, serve the cached app shell so the dashboard
-        // still boots with no connection.
-        if (request.mode === 'navigate') {
-          const shell =
-            (await cache.match(`${base}/`)) ||
-            (await cache.match('/')) ||
-            (await cache.match(`${base}/index.html`));
-          if (shell) return shell;
-        }
-
-        return new Response('Offline', { status: 503, statusText: 'Offline' });
-      }
+      return (await network) || new Response('Offline', { status: 503, statusText: 'Offline' });
     })()
   );
 });

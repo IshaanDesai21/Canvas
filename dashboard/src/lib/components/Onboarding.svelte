@@ -30,6 +30,11 @@
 
   const primaryLabel = $derived(step === 0 ? 'Get started' : last ? 'Open dashboard' : 'Next');
   const name = $derived(settings.current.name.trim());
+
+  async function handleUpload(e: Event) {
+    const file = (e.target as HTMLInputElement).files?.[0];
+    if (file && file.type.startsWith('image/')) await background.setImage(file);
+  }
 </script>
 
 {#if !onboarding.done}
@@ -90,7 +95,7 @@
           </div>
         {:else if STEPS[step] === 'wallpaper'}
           <h2 class="text-display">Choose a background</h2>
-          <p class="ob-sub">Pick a wallpaper — add your own later in Settings.</p>
+          <p class="ob-sub">Pick a wallpaper, or upload your own photo.</p>
           <div class="ob-grads">
             {#each GRADIENTS as g (g.id)}
               <button class="grad" class:on={background.config.kind === 'gradient' && background.config.gradientId === g.id}
@@ -98,6 +103,11 @@
                 aria-label={g.name} onclick={() => background.setGradient(g.id)}></button>
             {/each}
           </div>
+          <label class="ob-upload control" class:on={background.config.kind === 'image'}>
+            <Icon name="photo" size={16} />
+            {background.config.kind === 'image' ? 'Image uploaded — choose another' : 'Upload your own photo'}
+            <input type="file" accept="image/*" onchange={handleUpload} />
+          </label>
         {:else}
           <span class="ob-badge done"><Icon name="check" size={30} strokeWidth={2.4} /></span>
           <h2 class="text-display">{name ? `You're all set, ${name}!` : "You're all set!"}</h2>
@@ -169,6 +179,12 @@
   .ob-grads { display: grid; grid-template-columns: repeat(4, 1fr); gap: 9px; width: 100%; max-width: 320px; margin-top: 8px; }
   .grad { aspect-ratio: 1; border-radius: 12px; box-shadow: inset 0 0 0 1px var(--hairline); transition: transform var(--dur-fast) var(--ease-spring); }
   .grad.on { box-shadow: 0 0 0 2px var(--accent); transform: scale(1.06); }
+  .ob-upload {
+    position: relative; display: inline-flex; align-items: center; gap: 8px; margin-top: 12px;
+    padding: 9px 14px; font-size: 0.85rem; font-weight: 600; border-radius: var(--radius-sm); cursor: pointer;
+  }
+  .ob-upload.on { box-shadow: inset 0 0 0 1.5px var(--accent); color: var(--accent); }
+  .ob-upload input { position: absolute; inset: 0; opacity: 0; cursor: pointer; }
 
   .ob-foot { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
   .dots { display: flex; gap: 6px; }

@@ -7,6 +7,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
     <meta name="color-scheme" content="light dark" />
     <meta name="theme-color" content="#0b0b10" />
+    <!-- Warm up the weather/location API connections so data lands sooner. -->
+    <link rel="preconnect" href="https://api.open-meteo.com" crossorigin />
+    <link rel="preconnect" href="https://ipwho.is" crossorigin />
+    <link rel="dns-prefetch" href="https://geocoding-api.open-meteo.com" />
+    <link rel="dns-prefetch" href="https://api.bigdatacloud.net" />
     <title>New Tab</title>
     <script>
       // Apply the persisted theme before first paint to avoid a flash.
@@ -23,6 +28,9 @@
               : theme;
           root.setAttribute('data-theme', resolved);
           root.style.colorScheme = resolved;
+          // Paint the page background immediately so there's no white flash
+          // before the CSS bundle loads.
+          root.style.background = resolved === 'dark' ? '#0b0b10' : '#f2f2f7';
         } catch (_) {}
       })();
     </script>

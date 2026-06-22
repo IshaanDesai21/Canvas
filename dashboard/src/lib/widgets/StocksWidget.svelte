@@ -12,7 +12,6 @@
   import { untrack } from 'svelte';
   import type { WidgetInstance } from '$lib/types';
   import { layout } from '$stores/layout.svelte';
-  import { ui } from '$stores/ui.svelte';
   import Icon from '$components/Icon.svelte';
 
   let { instance }: { instance: WidgetInstance } = $props();
@@ -27,8 +26,6 @@
     })
   );
   let draft = $state('');
-
-  const editing = $derived(ui.editMode);
 
   function persist() {
     layout.setWidgetSettings(instance.id, { tickers: $state.snapshot(tickers) });
@@ -144,34 +141,30 @@
           </span>
         </div>
 
-        {#if editing}
-          <button class="remove" aria-label="Remove {t}" onclick={() => removeTicker(t)}>
-            <Icon name="xmark" size={13} strokeWidth={2.4} />
-          </button>
-        {/if}
+        <button class="remove" aria-label="Remove {t}" onclick={() => removeTicker(t)}>
+          <Icon name="xmark" size={13} strokeWidth={2.4} />
+        </button>
       </div>
     {:else}
       <p class="empty text-tertiary">No tickers — add one below.</p>
     {/each}
   </div>
 
-  {#if editing}
-    <form class="add" onsubmit={(e) => { e.preventDefault(); addTicker(); }}>
-      <input
-        class="add-input selectable"
-        type="text"
-        bind:value={draft}
-        placeholder="Add ticker (e.g. AMZN)"
-        aria-label="Add stock ticker"
-        maxlength="8"
-        spellcheck="false"
-        autocomplete="off"
-      />
-      <button class="add-btn control" type="submit" aria-label="Add ticker">
-        <Icon name="plus" size={16} />
-      </button>
-    </form>
-  {/if}
+  <form class="add" onsubmit={(e) => { e.preventDefault(); addTicker(); }}>
+    <input
+      class="add-input selectable"
+      type="text"
+      bind:value={draft}
+      placeholder="Add ticker (e.g. AMZN)"
+      aria-label="Add stock ticker"
+      maxlength="8"
+      spellcheck="false"
+      autocomplete="off"
+    />
+    <button class="add-btn control" type="submit" aria-label="Add ticker">
+      <Icon name="plus" size={16} />
+    </button>
+  </form>
 </div>
 
 <style>
@@ -212,7 +205,7 @@
   }
   .row {
     display: grid;
-    grid-template-columns: minmax(0, 1fr) auto auto;
+    grid-template-columns: minmax(0, 1fr) auto auto auto;
     align-items: center;
     gap: var(--space-2);
   }
@@ -258,6 +251,12 @@
     height: 20px;
     border-radius: var(--radius-pill);
     color: var(--text-tertiary);
+    opacity: 0;
+    transition: opacity var(--dur-fast) var(--ease-smooth), color var(--dur-fast), background var(--dur-fast);
+  }
+  .row:hover .remove,
+  .remove:focus-visible {
+    opacity: 1;
   }
   .remove:hover {
     background: var(--control-fill-active);

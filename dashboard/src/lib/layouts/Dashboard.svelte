@@ -135,7 +135,10 @@
   .tool.active { background: var(--accent); color: #fff; width: auto; padding: 0 16px; }
   .done { font-weight: 600; font-size: 0.95rem; }
 
-  .search-pos { position: relative; display: flex; flex-direction: column; align-items: center; }
+  /* The inline transform makes this a stacking context; without a positive
+     z-index the widget slots (also auto-z-index, but later in the DOM) would
+     paint over the search results / calculator preview. Lift it above them. */
+  .search-pos { position: relative; z-index: 40; display: flex; flex-direction: column; align-items: center; }
   .search-tools {
     position: absolute; bottom: calc(100% + 10px); z-index: 5;
     display: inline-flex; gap: 6px; white-space: nowrap;

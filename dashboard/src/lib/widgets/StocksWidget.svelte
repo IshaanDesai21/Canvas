@@ -26,6 +26,12 @@
     })
   );
   let draft = $state('');
+  let showAdd = $state(false);
+
+  // Focus the field as soon as it's revealed.
+  function autofocus(node: HTMLInputElement) {
+    node.focus();
+  }
 
   function persist() {
     layout.setWidgetSettings(instance.id, { tickers: $state.snapshot(tickers) });
@@ -110,7 +116,18 @@
       <Icon name="chart" size={16} strokeWidth={1.8} />
       <span>Stocks</span>
     </div>
-    <span class="caption text-tertiary">Demo data</span>
+    <div class="head-right">
+      <span class="caption text-tertiary">Demo data</span>
+      <button
+        class="add-toggle"
+        class:open={showAdd}
+        aria-label={showAdd ? 'Close add ticker' : 'Add a ticker'}
+        aria-expanded={showAdd}
+        onclick={() => (showAdd = !showAdd)}
+      >
+        <Icon name="plus" size={14} strokeWidth={2.4} />
+      </button>
+    </div>
   </header>
 
   <div class="rows scroll-area" role="list">
@@ -150,6 +167,7 @@
     {/each}
   </div>
 
+  {#if showAdd}
   <form class="add" onsubmit={(e) => { e.preventDefault(); addTicker(); }}>
     <input
       class="add-input selectable"
@@ -160,11 +178,14 @@
       maxlength="8"
       spellcheck="false"
       autocomplete="off"
+      use:autofocus
+      onkeydown={(e) => { if (e.key === 'Escape') { showAdd = false; draft = ''; } }}
     />
     <button class="add-btn control" type="submit" aria-label="Add ticker">
       <Icon name="plus" size={16} />
     </button>
   </form>
+  {/if}
 </div>
 
 <style>
@@ -193,6 +214,37 @@
   .caption {
     font-size: 0.68rem;
     font-weight: 500;
+  }
+  .head-right {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  /* Hidden until the widget is hovered/focused; a button reveals the add field. */
+  .add-toggle {
+    display: grid;
+    place-items: center;
+    width: 22px;
+    height: 22px;
+    border-radius: var(--radius-pill);
+    background: var(--control-fill);
+    color: var(--text-secondary);
+    opacity: 0;
+    transition: opacity var(--dur-fast) var(--ease-smooth), background var(--dur-fast), color var(--dur-fast), transform var(--dur-fast) var(--ease-spring);
+  }
+  .stocks:hover .add-toggle,
+  .add-toggle:focus-visible,
+  .add-toggle.open {
+    opacity: 1;
+  }
+  .add-toggle:hover {
+    background: var(--control-fill-active);
+    color: var(--text-primary);
+  }
+  /* Turn the + into an × affordance when the field is open. */
+  .add-toggle.open {
+    transform: rotate(45deg);
+    color: var(--accent);
   }
   .rows {
     flex: 1;

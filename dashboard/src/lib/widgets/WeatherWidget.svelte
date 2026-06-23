@@ -1,7 +1,7 @@
 <script lang="ts">
   import { untrack } from 'svelte';
   import type { WidgetInstance } from '$lib/types';
-  import { fetchWeather, getLocation, geocodeCity, type WeatherData } from '$utils/weather';
+  import { fetchWeather, fetchNWSCurrent, getLocation, geocodeCity, type WeatherData } from '$utils/weather';
   import { kv } from '$utils/storage';
   import { layout } from '$stores/layout.svelte';
   import Icon from '$components/Icon.svelte';
@@ -42,6 +42,14 @@
       kv.set(PLACE_KEY, place);
       data = await fetchWeather(loc.lat, loc.lon, true);
       kv.set(CACHE_KEY, data);
+
+      // For US locations, correct the "now" condition with real NWS station
+      // observations (Open-Meteo's model code can invent thunderstorms).
+      const nws = await fetchNWSCurrent(loc.lat, loc.lon, true, data.now.isDay);
+      if (nws && data) {
+        data = { ...data, now: { ...data.now, temp: nws.temp, label: nws.label, icon: nws.icon } };
+        kv.set(CACHE_KEY, data);
+      }
     } catch {
       // Only surface an error when we have nothing cached to fall back on.
       if (!data) error = true;

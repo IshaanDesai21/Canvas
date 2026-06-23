@@ -160,6 +160,65 @@ export async function geocodeCity(query: string): Promise<ResolvedLocation | nul
   }
 }
 
+/** Map a National Weather Service text description to our icon set. */
+function iconForText(text: string, isDay = true): string {
+  const s = text.toLowerCase();
+  if (/thunder|t-?storm/.test(s)) return 'cloudrain';
+  if (/rain|shower|drizzle/.test(s)) return 'cloudrain';
+  if (/snow|sleet|ice|flurr|wintry/.test(s)) return 'cloud';
+  if (/fog|haze|mist|smoke/.test(s)) return 'cloud';
+  if (/cloud|overcast/.test(s)) return 'cloud';
+  if (/clear|sunny|fair/.test(s)) return isDay ? 'sun' : 'moon';
+  return 'cloud';
+}
+
+export interface CurrentOverride {
+  temp: number;
+  label: string;
+  icon: string;
+}
+
+/**
+ * Real, observed current conditions from the US National Weather Service
+ * (keyless, CORS-enabled, station observations). Returns null outside the US
+ * or on any failure — far more accurate than model-derived codes for the
+ * "right now" condition (e.g. avoids phantom thunderstorms). We still use
+ * Open-Meteo for the forecast structure and everywhere NWS doesn't cover.
+ */
+export async function fetchNWSCurrent(
+  lat: number,
+  lon: number,
+  fahrenheit = true,
+  isDay = true
+): Promise<CurrentOverride | null> {
+  try {
+    const pts = await fetchWithTimeout(`https://api.weather.gov/points/${lat.toFixed(4)},${lon.toFixed(4)}`);
+    if (!pts.ok) return null;
+    const stationsUrl = (await pts.json())?.properties?.observationStations;
+    if (!stationsUrl) return null;
+
+    const st = await fetchWithTimeout(stationsUrl);
+    if (!st.ok) return null;
+    const stationUrl = (await st.json())?.features?.[0]?.id;
+    if (!stationUrl) return null;
+
+    const obs = await fetchWithTimeout(`${stationUrl}/observations/latest`);
+    if (!obs.ok) return null;
+    const p = (await obs.json())?.properties;
+    const celsius = p?.temperature?.value;
+    if (typeof celsius !== 'number') return null;
+
+    const label = (p.textDescription || '').trim() || 'Current';
+    return {
+      temp: Math.round(fahrenheit ? celsius * (9 / 5) + 32 : celsius),
+      label,
+      icon: iconForText(label, isDay)
+    };
+  } catch {
+    return null;
+  }
+}
+
 export async function fetchWeather(lat: number, lon: number, fahrenheit = true): Promise<WeatherData> {
   const unit = fahrenheit ? 'fahrenheit' : 'celsius';
   const url =

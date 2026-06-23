@@ -1,19 +1,57 @@
 <script lang="ts">
   import { settings } from '$stores/settings.svelte';
+  import { history } from '$stores/history.svelte';
   import type { SearchProviderId } from '$lib/types';
   import { SEARCH_PROVIDERS, PROVIDER_LIST, searchUrl, detectProvider, fetchSuggestions, looksLikeUrl } from '$utils/search';
   import { evaluateExpression, convertUnits, prettyNumber } from '$utils/calc';
   import Icon from '$components/Icon.svelte';
 
-  let query = $state('');
+  let query = $state(''); // the text the user has actually typed
   let focused = $state(false);
   let active = $state(0); // highlighted row
   let suggestions = $state<string[]>([]);
   let input = $state<HTMLInputElement>();
   let menuOpen = $state(false);
+  // Browser-style inline autocomplete: the full host we're completing to
+  // (e.g. "youtube.com"), with its tail selected in the field. null when none.
+  let acTarget = $state<string | null>(null);
 
   /** Allow the parent to focus the bar (e.g. pressing "/"). */
   export function focusInput() { input?.focus(); }
+
+  // Type-ahead: fill the rest of a known host and select it. Only on forward
+  // typing (never while deleting), so it never fights the user.
+  function onInput(e: Event) {
+    const el = input;
+    if (!el) return;
+    active = 0;
+    const val = el.value;
+    const deleting = (e as InputEvent).inputType?.startsWith('delete') ?? false;
+    if (!deleting && val) {
+      const comp = history.complete(val);
+      if (comp && comp.length > val.length) {
+        acTarget = comp;
+        query = val;
+        el.value = val + comp.slice(val.length);
+        el.setSelectionRange(val.length, el.value.length);
+        return;
+      }
+    }
+    acTarget = null;
+    query = val;
+  }
+
+  function clearInput() {
+    query = '';
+    acTarget = null;
+    if (input) input.value = '';
+  }
+
+  /** Navigate straight to a known site (used when accepting an autocomplete). */
+  function goSite(host: string) {
+    history.record(host);
+    window.location.href = /^https?:\/\//i.test(host) ? host : `https://${host}`;
+  }
 
   // Safe lookup — tolerates a stale/removed provider id in persisted settings.
   let provider = $derived(SEARCH_PROVIDERS[settings.current.searchProvider] ?? SEARCH_PROVIDERS.google);
@@ -55,18 +93,22 @@
   function go(target: string | null = null) {
     const text = (target ?? parsed.query).trim();
     if (!text && !directUrl) return;
+    if (directUrl && !target) {
+      try { history.record(new URL(directUrl).hostname); } catch { /* ignore */ }
+    }
     const url = directUrl && !target ? directUrl : searchUrl(parsed.provider, text);
     window.location.href = url;
   }
 
   function onKey(e: KeyboardEvent) {
-    if (e.key === 'ArrowDown') { e.preventDefault(); active = Math.min(active + 1, rows.length); }
-    else if (e.key === 'ArrowUp') { e.preventDefault(); active = Math.max(active - 1, 0); }
+    if (e.key === 'ArrowDown') { e.preventDefault(); acTarget = null; active = Math.min(active + 1, rows.length); }
+    else if (e.key === 'ArrowUp') { e.preventDefault(); acTarget = null; active = Math.max(active - 1, 0); }
     else if (e.key === 'Enter') {
       e.preventDefault();
       if (active > 0 && rows[active - 1]) go(rows[active - 1]);
+      else if (acTarget) goSite(acTarget);
       else go();
-    } else if (e.key === 'Escape') { query = ''; input?.blur(); }
+    } else if (e.key === 'Escape') { clearInput(); input?.blur(); }
   }
 
   function pickProvider(id: SearchProviderId) {
@@ -102,21 +144,21 @@
 
     <input
       bind:this={input}
-      bind:value={query}
       class="selectable"
       type="text"
       placeholder={`Search ${provider.name} or enter a website`}
       spellcheck="false"
       autocomplete="off"
+      autocapitalize="off"
       aria-label="Search"
       onfocus={() => (focused = true)}
       onblur={() => setTimeout(() => (focused = false), 120)}
       onkeydown={onKey}
-      oninput={() => (active = 0)}
+      oninput={onInput}
     />
 
     {#if query}
-      <button class="clear" aria-label="Clear" onclick={(e) => { e.stopPropagation(); query = ''; input?.focus(); }}>
+      <button class="clear" aria-label="Clear" onclick={(e) => { e.stopPropagation(); clearInput(); input?.focus(); }}>
         <Icon name="xmark" size={16} strokeWidth={2.2} />
       </button>
     {/if}

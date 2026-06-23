@@ -1,26 +1,22 @@
 <script lang="ts">
-  import { untrack } from 'svelte';
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   import type { WidgetInstance } from '$lib/types';
   import Icon from '$components/Icon.svelte';
-  import { layout } from '$stores/layout.svelte';
   import { formatDuration } from '$utils/time';
+  import { pomodoro } from '$stores/pomodoro.svelte';
 
+  // The timer lives in a shared, persisted store so it keeps running across
+  // tab closes/reopens, syncs between tabs, and notifies on completion.
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   let { instance }: { instance: WidgetInstance } = $props();
 
-  type Mode = 'focus' | 'break';
-  const DURATIONS: Record<Mode, number> = { focus: 25 * 60, break: 5 * 60 };
-
-  // Completed focus sessions persist across reloads.
-  let sessions = $state<number>(untrack(() => Number(instance.settings?.sessions ?? 0)));
-
-  let mode = $state<Mode>('focus');
-  let remaining = $state<number>(DURATIONS.focus);
-  let running = $state(false);
-
-  let total = $derived(DURATIONS[mode]);
-  let label = $derived(formatDuration(remaining));
+  let mode = $derived(pomodoro.mode);
+  let running = $derived(pomodoro.running);
+  let sessions = $derived(pomodoro.sessions);
+  let total = $derived(pomodoro.total);
+  let label = $derived(formatDuration(pomodoro.remaining));
   // Fraction of time elapsed, 0..1, drives the ring.
-  let progress = $derived(total > 0 ? (total - remaining) / total : 0);
+  let progress = $derived(total > 0 ? (total - pomodoro.remaining) / total : 0);
 
   // SVG ring geometry.
   const R = 52;
@@ -28,47 +24,9 @@
   let dashOffset = $derived(CIRCUMFERENCE * (1 - progress));
   let ringColor = $derived(mode === 'focus' ? 'var(--accent)' : '#30d158');
 
-  function switchMode(next: Mode) {
-    mode = next;
-    remaining = DURATIONS[next];
-    running = false;
-  }
-
-  function toggle() {
-    running = !running;
-  }
-
-  function reset() {
-    running = false;
-    remaining = DURATIONS[mode];
-  }
-
-  function completeSession() {
-    if (mode === 'focus') {
-      sessions += 1;
-      layout.setWidgetSettings(instance.id, { sessions });
-      // Auto-switch into a break after a completed focus block.
-      switchMode('break');
-    } else {
-      switchMode('focus');
-    }
-    // Stay paused so the user consciously starts the next block.
-    running = false;
-  }
-
-  // Countdown driver — ticks once a second while running, cleans up on stop.
-  $effect(() => {
-    if (!running) return;
-    const t = setInterval(() => {
-      if (remaining <= 1) {
-        remaining = 0;
-        completeSession();
-      } else {
-        remaining -= 1;
-      }
-    }, 1000);
-    return () => clearInterval(t);
-  });
+  const switchMode = (next: 'focus' | 'break') => pomodoro.switchMode(next);
+  const toggle = () => pomodoro.toggle();
+  const reset = () => pomodoro.reset();
 </script>
 
 <div class="pomodoro">

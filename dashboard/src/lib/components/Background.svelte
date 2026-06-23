@@ -79,7 +79,10 @@
 {/if}
 
 <style>
-  .bg-root { position: fixed; inset: 0; z-index: -1; overflow: hidden; background: var(--bg-fallback); }
+  /* z-index 0 (not -1): a negative z-index would paint behind the opaque body
+     background and hide the wallpaper. 0 keeps it above the body fill but below
+     all app content (which lives in later, positioned containers). */
+  .bg-root { position: fixed; inset: 0; z-index: 0; overflow: hidden; background: var(--bg-fallback); }
   .layer {
     position: absolute; inset: -40px; background-position: center; background-repeat: no-repeat;
     will-change: transform; animation: bg-fade var(--dur-slow) var(--ease-out-quart) both;

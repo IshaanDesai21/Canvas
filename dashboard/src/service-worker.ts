@@ -58,34 +58,37 @@ sw.addEventListener('fetch', (event) => {
     return;
   }
 
-  // Same-origin: serve from cache FIRST so a new tab paints instantly, then
-  // refresh the cache in the background (stale-while-revalidate). Build/static
-  // assets are content-hashed and the precache is version-keyed, so the cached
-  // shell and its assets always match.
+  const isNav = request.mode === 'navigate';
+  // Content-hashed build assets never change for a given URL, so they're safe
+  // to serve cache-first — this is what keeps loads instant.
+  const immutable = url.pathname.includes('/_app/immutable/');
+
   event.respondWith(
     (async () => {
       const cache = await caches.open(CACHE);
-      const isNav = request.mode === 'navigate';
 
-      const cached =
-        (await cache.match(request)) ||
-        (isNav ? (await cache.match(`${base}/`)) || (await cache.match('/')) : undefined);
-
-      const network = fetch(request)
-        .then((response) => {
-          if (response && response.ok && response.type === 'basic') {
-            cache.put(request, response.clone());
-          }
-          return response;
-        })
-        .catch(() => undefined);
-
-      // Don't block paint on the revalidation when we have a cache hit.
-      if (cached) {
-        event.waitUntil(network.then(() => undefined));
-        return cached;
+      if (immutable) {
+        const hit = await cache.match(request);
+        if (hit) return hit;
+        const res = await fetch(request);
+        if (res && res.ok) cache.put(request, res.clone());
+        return res;
       }
-      return (await network) || new Response('Offline', { status: 503, statusText: 'Offline' });
+
+      // The page shell and everything else: NETWORK-FIRST so a new deploy lands
+      // on the very next load (no waiting for a background revalidation), with a
+      // cache fallback so it still works offline. The shell is tiny, and the
+      // heavy hashed assets above are already cached, so this stays fast.
+      try {
+        const res = await fetch(request);
+        if (res && res.ok && res.type === 'basic') cache.put(request, res.clone());
+        return res;
+      } catch {
+        const cached =
+          (await cache.match(request)) ||
+          (isNav ? (await cache.match(`${base}/`)) || (await cache.match('/')) : undefined);
+        return cached || new Response('Offline', { status: 503, statusText: 'Offline' });
+      }
     })()
   );
 });

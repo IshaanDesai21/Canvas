@@ -96,10 +96,11 @@
 <style>
   .pomodoro {
     height: 100%;
-    display: flex;
-    flex-direction: column;
+    display: grid;
+    /* segmented | ring (fills remaining space) | controls | sessions */
+    grid-template-rows: auto 1fr auto auto;
     align-items: center;
-    justify-content: center;
+    justify-items: center;
     gap: clamp(6px, 2.5cqh, 12px);
   }
 
@@ -137,14 +138,15 @@
   /* The ring grows to fill the space left between the toggle and controls,
      so the timer fills its widget instead of floating in an empty box. */
   .ring-wrap {
-    position: relative;
     flex: 1 1 auto;
     min-height: 0;
     width: 100%;
     display: grid;
     place-items: center;
+    pointer-events: none;
   }
   .ring {
+    grid-area: 1 / 1;
     height: 100%;
     max-height: 100%;
     aspect-ratio: 1;
@@ -174,8 +176,7 @@
     transition: stroke-dashoffset var(--dur-base) var(--ease-smooth);
   }
   .readout {
-    position: absolute;
-    inset: 0;
+    grid-area: 1 / 1;
     display: flex;
     flex-direction: column;
     align-items: center;

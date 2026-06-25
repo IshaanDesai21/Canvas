@@ -150,6 +150,7 @@
     aspect-ratio: 1;
     max-width: 100%;
     transform: rotate(-90deg);
+    pointer-events: none;
     /* Never draw a focus/outline box around the SVG. */
     outline: none;
     border: none;
@@ -180,6 +181,7 @@
     align-items: center;
     justify-content: center;
     gap: 0.1rem;
+    pointer-events: none;
   }
   .time {
     font-size: clamp(1.4rem, 14cqh, 2.1rem);

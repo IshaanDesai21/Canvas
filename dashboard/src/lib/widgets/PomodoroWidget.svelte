@@ -115,9 +115,15 @@
     color: var(--text-secondary);
     font-size: 0.78rem;
     font-weight: 600;
-    padding: 0.25rem 0.85rem;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 2.15rem;
+    min-width: 3.35rem;
+    padding: 0.35rem 0.9rem;
     border-radius: var(--radius-pill);
     cursor: pointer;
+    touch-action: manipulation;
     transition:
       background-color var(--dur-fast) var(--ease-smooth),
       color var(--dur-fast) var(--ease-smooth);
@@ -192,15 +198,19 @@
     align-items: center;
   }
   .ctrl {
-    display: grid;
-    place-items: center;
-    width: 40px;
-    height: 40px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 44px;
+    height: 44px;
+    min-width: 44px;
+    min-height: 44px;
     border: none;
     border-radius: var(--radius-pill);
     background: var(--control-fill);
     color: var(--text-primary);
     cursor: pointer;
+    touch-action: manipulation;
     transition: background var(--dur-fast) var(--ease-smooth), transform var(--dur-fast) var(--ease-spring);
   }
   .ctrl:hover { background: var(--control-fill-active); }
